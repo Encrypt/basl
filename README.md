@@ -1,17 +1,17 @@
 BASL - Bourne Again Social Life
 ===============================
 
-# About
+## About
 BASL is a bash script which automatically sends "happy birthday" SMS to your close relatives.
 
-# Prerequisites
+## Prerequisites
 In order to use it, you will need:
 - A working asterisk server
 - A cell phone plan
 - The chan_dongle module loaded and configured
 - Family or even... friends :')
 
-# Installing and configuring
+## Installing and configuring
 To use this script, clone this project to your home directory for example.
 
 Fill the contacts.csv file with the appropriate information.
@@ -32,5 +32,5 @@ Add a cron job to run the script everyday (/etc/crontab under Debian):
 
 And there you go!
 
-# Licence
+## Licence
 BASL is released under the GPLv3 licence.
