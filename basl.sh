@@ -18,18 +18,15 @@
 # this program. If not, see http://www.gnu.org/licenses/.
 
 # General parameters
+LANGUAGE='fr_FR'
 CSV_CONTACTS='/path/to/contacts.csv'
 MOBILE_REGEXP='\+33[67][0-9]{8}'
 TARGET_DONGLE='dongle0'
 ASTERISK_PATH='/usr/sbin/asterisk'
 
-# Birthday messages
-MESSAGES=(
-	"Joyeux anniversaire \$name_p ! Déjà \$age_p ans !"
-	"Un petit mot pour te souhaiter un bon anniversaire \$name_p !"
-	"Ça y est \$name_p, tu viens d\'atteindre tes \$age_p ans ! Bon anniversaire !"
-	"Salut \$name_p ! Bon anniversaire ! Bisous !"
-)
+# Reads the messages
+readarray BDAY_MESSAGES < <(sed '0,/#/d;/#/,$d;/^\s*$/d' ./messages/${LANGUAGE}.md)
+readarray NWYR_MESSAGES < <(sed '1,/#/d;/^\s*$/d' ./messages/${LANGUAGE}.md)
 
 # Parses the structure of the CSV
 csv_header=$(head -n 1 ${CSV_CONTACTS} | sed 's/,/\n/g' | nl -b a -v 0 -s ',')
@@ -82,18 +79,19 @@ do
 		# If we do not know the birth year, uses a message without age
 		if [ -n "${age_p}" ]
 		then
-			msg_number=$(($RANDOM % ${#MESSAGES[@]}))
+			msg_number=$(($RANDOM % ${#BDAY_MESSAGES[@]}))
 		else
-			while [ -z ${message_p+x} ] || [ $(echo ${message_p} | grep '$age_p' | wc -l) -eq 1 ]
+			while [ -z ${message_p+x} ] || [ $(echo ${message_p} | grep '$age' | wc -l) -eq 1 ]
 			do
-				msg_number=$(($RANDOM % ${#MESSAGES[@]}))
-				message_p=${MESSAGES[${msg_number}]}
+				msg_number=$(($RANDOM % ${#BDAY_MESSAGES[@]}))
+				message_p=${BDAY_MESSAGES[${msg_number}]}
 			done
 		fi
 
 		# Expands the variables in the message and prepares it for execution
-		message_p=$(eval "echo ${MESSAGES[${msg_number}]}" | sed "s/'/\\\'/g")
-
+		message_p=$(echo ${BDAY_MESSAGES[${msg_number}]} | sed 's/$age/$age_p/g;s/$name/$name_p/g' | sed "s/'/\\\'/g")
+		message_p=$(eval "echo ${message_p}" | sed "s/'/\\\'/g")
+		
 		# Sleeps a bit to make things look real :)
 		sleep $(($RANDOM % 20))m
 
