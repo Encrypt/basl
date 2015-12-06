@@ -17,12 +17,8 @@
 # You should have received a copy of the GNU General Public License along with
 # this program. If not, see http://www.gnu.org/licenses/.
 
-# General parameters
-LANGUAGE='fr_FR'
-CSV_CONTACTS='/path/to/contacts.csv'
-MOBILE_REGEXP='\+33[67][0-9]{8}'
-TARGET_DONGLE='dongle0'
-ASTERISK_PATH='/usr/sbin/asterisk'
+# Reads the configuration file
+source config.sh
 
 # Reads the messages
 readarray BDAY_MESSAGES < <(sed '0,/#/d;/#/,$d;/^\s*$/d' ./messages/${LANGUAGE}.md)
