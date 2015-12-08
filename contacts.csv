@@ -1,5 +1,5 @@
-surname,name,nickname,mobile,landline,birthday
-Clark,Abby,,+33600000000,+33988888888,21011983
-Potter,Briana,,+33611111111,,07051985
-Reed,Thomas,,+33622222222,+33100000000,2412
-Orr,Kenny,ken,+33633333333,,13021974
+surname,name,nickname,mobile,landline,birthday,newyear
+Clark,Abby,,+33600000000,+33988888888,21011983,Y
+Potter,Briana,,+33611111111,,07051985,N
+Reed,Thomas,,+33622222222,+33100000000,2412,Y
+Orr,Kenny,ken,+33633333333,,13021974,Y
