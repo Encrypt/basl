@@ -1,5 +1,4 @@
-BASL - Bourne Again Social Life
-===============================
+# BASL - Bourne Again Social Life
 
 ## About
 BASL is a bash script which automatically sends "happy birthday" and "happy new year" SMS to your close relatives.
@@ -32,8 +31,10 @@ The general parameters have to be set in the config.sh file:
 - ASTERISK_PATH: path to the asterisk executable.
 
 Add two cron job to run the script everyday (/etc/crontab under Debian):
-> 15 9  \* \* \*  root  /home/you/basl.sh -b
-> 0 1  1 1 \*  root  /home/you/basl.sh -n
+```
+15 9  * * *  root  /home/you/basl.sh -b
+1 0  1 1 *  root  /home/you/basl.sh -n
+```
 
 The "b" option being for "birthday" and the "n" option for "new year".
 
