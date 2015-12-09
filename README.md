@@ -30,7 +30,7 @@ The general parameters have to be set in the config.sh file:
 - TARGET_DONGLE: name of the target dongle which will send the SMS.
 - ASTERISK_PATH: path to the asterisk executable.
 
-Add two cron job to run the script everyday (/etc/crontab under Debian):
+Add two cron job to run the script at the appropriate moment (/etc/crontab under Debian):
 ```
 15 9  * * *  root  /home/you/basl.sh -b
 1 0  1 1 *  root  /home/you/basl.sh -n

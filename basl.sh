@@ -25,15 +25,15 @@ readonly ARGS_NB=$#
 
 # Main function
 main() {
-	
+
 	# Variables
-	local option
-	
+	local option cmd
+
 	# Reads the configuration file
 	source config.sh
 
 	# Checks that enough arguments were passed
-	if [ $ARGS_NB -eq 0 ]
+	if [ ${ARGS_NB} -eq 0 ]
 	then
 		echo "Executing $PROGNAME requires at least 1 argument among -t, -h, -n or -b." >&2
 		exit 1
@@ -47,32 +47,45 @@ main() {
 	do
 		case $option in
 			t)
-				echo "Test option not yet implemented." >&2
+				echo 'Test option not yet implemented.' >&2
 				;;
 			h)
-				echo "Help option not yet implemented." >&2
+				echo 'Help option not yet implemented.' >&2
 				;;
 			n)
-				readonly MAX_SLEEP_TIME=15
-				prepare_sms newyear
+				if [ -z "$cmd" ]
+				then
+					readonly MAX_SLEEP_TIME=15
+					cmd='prepare_sms newyear'
+				else
+					echo 'Error: you can not run the options n and b together.' >&2
+				fi
 				;;
 			b)
-				readonly MAX_SLEEP_TIME=1200
-				prepare_sms birthday
+				if [ -z "$cmd" ]
+				then
+					readonly MAX_SLEEP_TIME=1200
+					cmd='prepare_sms birthday'
+				else
+					echo 'Error: you can not run the options n and b together.' >&2
+				fi
 				;;
 			\?)
 				echo "Invalid option: -$OPTARG" >&2
 				;;
 		esac
 	done
+
+	# Executes the command accordingly
+	eval $cmd
 }
 
 # Reads the contacts and messages files
 read_contacts_messages() {
-	
+
 	# Variables
 	local csv_header field variable value
-	
+
 	# Reads the messages
 	readarray BDAY_MESSAGES < <(sed '0,/#/d;/#/,$d;/^\s*$/d' ./messages/${LANGUAGE}.md)
 	readarray NWYR_MESSAGES < <(sed '1,/#/d;/^\s*$/d' ./messages/${LANGUAGE}.md)
@@ -97,7 +110,7 @@ prepare_sms() {
 	local age_p name_p message_p
 	local year_p=$(date +'%Y')
 	local smstype="$1"
-	
+
 	# Gets the persons concerned
 	if [ $smstype = 'birthday' ]
 	then
@@ -109,7 +122,7 @@ prepare_sms() {
 		echo "Something went wrong, blame the author!" >&2
 		return 1
 	fi
-	
+
 	for i in ${ids[@]}
 	do
 		friends+=($(sed "${i}q;d" ${CSV_CONTACTS}))
@@ -124,7 +137,7 @@ prepare_sms() {
 		do
 			infos[${i}]=$(echo ${friend} | cut -d ',' -f $((${i}+1)))
 		done
-		
+
 		# Processes the name (or nickname) to display
 		if [ -n "${infos[${NICKNAME}]}" ]
 		then
@@ -132,11 +145,11 @@ prepare_sms() {
 		else
 			name_p=${infos[${NAME}]}
 		fi
-		
+
 		# Case "birthday"
 		if [ $smstype = 'birthday' ]
 		then
-			
+
 			# Prepares the age & birthday message 
 			if [ $(echo -n ${infos[${BIRTHDAY}]} | wc -m) -eq 8 ]
 			then
@@ -149,13 +162,13 @@ prepare_sms() {
 					message_p=${BDAY_MESSAGES[${msg_number}]}
 				done
 			fi
-			
+
 			# Sets the sleeping time before sending the sms
 			sleep_time=$(($RANDOM % (${MAX_SLEEP_TIME} + 1)))
-		
+
 		# Else, case "newyear"
 		else
-		
+
 			# Prepares the new year message
 			message_p=${NWYR_MESSAGES[$(($RANDOM % ${#NWYR_MESSAGES[@]}))]}
 			
