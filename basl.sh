@@ -19,7 +19,6 @@
 
 # Gets the execution parameters
 readonly PROGNAME=$(basename $0)
-readonly PROGDIR=$(readlink -m $(dirname $0))
 readonly ARGS="$@"
 readonly ARGS_NB=$#
 
@@ -29,14 +28,17 @@ main() {
 	# Variables
 	local option cmd
 
+	# Prepares the exit code
+	EXITCODE=0
+
 	# Reads the configuration file
 	source config.sh
 
 	# Checks that enough arguments were passed
 	if [ ${ARGS_NB} -eq 0 ]
 	then
-		echo "Executing $PROGNAME requires at least 1 argument among -t, -h, -n or -b." >&2
-		exit 1
+		error 'arguments'
+		return
 	fi
 
 	# If the previous passed, read the contacts and messages
@@ -47,10 +49,10 @@ main() {
 	do
 		case $option in
 			t)
-				echo 'Test option not yet implemented.' >&2
+				error 'test'
 				;;
 			h)
-				echo 'Help option not yet implemented.' >&2
+				error 'help'
 				;;
 			n)
 				if [ -z "$cmd" ]
@@ -58,7 +60,8 @@ main() {
 					readonly MAX_SLEEP_TIME=15
 					cmd='prepare_sms newyear'
 				else
-					echo 'Error: you can not run the options n and b together.' >&2
+					error 'options'
+					return
 				fi
 				;;
 			b)
@@ -67,11 +70,13 @@ main() {
 					readonly MAX_SLEEP_TIME=1200
 					cmd='prepare_sms birthday'
 				else
-					echo 'Error: you can not run the options n and b together.' >&2
+					error 'options'
+					return
 				fi
 				;;
-			\?)
-				echo "Invalid option: -$OPTARG" >&2
+			*)
+				error 'wrongoption'
+				return
 				;;
 		esac
 	done
@@ -119,8 +124,7 @@ prepare_sms() {
 	then
 		ids=$(cut -d ',' -f $((${NEWYEAR}+1)) ${CSV_CONTACTS} | grep -n ^[yY] | cut -d ':' -f 1)
 	else
-		echo "Something went wrong, blame the author!" >&2
-		return 1
+		error 'smstype'
 	fi
 
 	for i in ${ids[@]}
@@ -171,7 +175,7 @@ prepare_sms() {
 
 			# Prepares the new year message
 			message_p=${NWYR_MESSAGES[$(($RANDOM % ${#NWYR_MESSAGES[@]}))]}
-			
+
 			# Sets the sleeping time before sending the sms
 			sleep_time=$(($RANDOM % (${MAX_SLEEP_TIME} - 4) + 5))
 
@@ -209,7 +213,44 @@ queue_sms() {
 	eval "${ASTERISK_PATH} -rx $'dongle sms ${TARGET_DONGLE} ${mobile} ${message}'"
 }
 
+# Errors
+error() {
+
+	local err=$1
+
+	# Displays the error
+	echo -n 'ERROR: ' >&2
+	case $err in
+		arguments)
+			echo "Executing $PROGNAME requires at least 1 argument among -t, -h, -n or -b." >&2
+			;;
+		test)
+			echo 'Test option not yet implemented.' >&2
+			;;
+		help)
+			echo 'Help option not yet implemented.' >&2
+			;;
+		options)
+			echo 'You can not run the options n and b together.' >&2
+			;;
+		wrongoption)
+			echo "Invalid option detected. Use '-h' for further help." >&2
+			;;
+		smstype)
+			echo "Something went wrong, blame the author!" >&2
+			;;
+		*)
+			echo "Unrecognized error: $err" >&2
+			;;
+	esac
+
+	# And therefore exit BASL with an exit code different of zero
+	EXITCODE=1
+}
+
 # Launches the main function
 main
 
-exit 0
+# Waits for the processes to finish and exits
+wait
+exit $EXITCODE
