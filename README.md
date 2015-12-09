@@ -2,7 +2,7 @@ BASL - Bourne Again Social Life
 ===============================
 
 ## About
-BASL is a bash script which automatically sends "happy birthday" SMS to your close relatives.
+BASL is a bash script which automatically sends "happy birthday" and "happy new year" SMS to your close relatives.
 
 ## Prerequisites
 In order to use it, you will need:
@@ -21,14 +21,21 @@ Please note that the birthday format must be either:
 
 Also, if the "nickname" value is not blank for a particular contact, her (or his) nickname will be used in the SMS.
 
-Change the general parameters of basl.sh with your current configuration:
-- CSV_CONTACTS: path to your contacts csv file.
+If you want to wish an "happy new year", then add a "Y" (for yes!) in the newyear column of the CSV.
+Else, put an "N".
+
+The general parameters have to be set in the config.sh file:
+- LANGUAGE: the language of the messages. Pick the name of the appropriate file in the "messages" folder, minus ".md".
+- CSV_CONTACTS: path to your contacts CSV file.
 - MOBILE_REGEXP: regular expression which matches your local phone numbers (now configured for France).
 - TARGET_DONGLE: name of the target dongle which will send the SMS.
 - ASTERISK_PATH: path to the asterisk executable.
 
-Add a cron job to run the script everyday (/etc/crontab under Debian):
-> 15 9  \* \* \*  root  /home/you/basl.sh
+Add two cron job to run the script everyday (/etc/crontab under Debian):
+> 15 9  \* \* \*  root  /home/you/basl.sh -b
+> 0 1  1 1 \*  root  /home/you/basl.sh -n
+
+The "b" option being for "birthday" and the "n" option for "new year".
 
 And there you go!
 
