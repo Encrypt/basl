@@ -244,7 +244,7 @@ error() {
 			;;
 	esac
 
-	# And therefore exit BASL with an exit code different of zero
+	# And therefore exit BASL with an exit code different from zero
 	EXITCODE=1
 }
 
